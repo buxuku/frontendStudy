@@ -89,6 +89,23 @@ class Tree {
     }
     traversal(this.root);
   }
+  //树的反转
+  reversal() {
+    const stack = [this.root];
+    while (stack.length) {
+      const current = stack.shift();
+      const temp = current.left;
+      current.left = current.right
+      current.right = temp;
+      if (current.left) {
+        stack.push(current.left);
+      }
+      if (current.right) {
+        stack.push(current.right);
+      }
+    }
+    return this.root;
+  }
 }
 
 const tree = new Tree((e1, e2) => {
@@ -107,4 +124,5 @@ tree.add(20);
 // tree.preOrderTraversalByStack((node) => console.log(node.element));
 // tree.levelTraversal((node) => console.log(node.element));
 // tree.inOrderTraversal((node) => console.log(node.element));
-tree.postOrderTraversal((node) => console.log(node.element));
+// tree.postOrderTraversal((node) => console.log(node.element));
+console.dir(tree.reversal(), {depth: 100})
