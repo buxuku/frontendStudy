@@ -1,5 +1,5 @@
 /**
- * 实现对cookie读取的封装，对cookie增加签名功能
+ * cookie配合session使用，
  * @type {module:http}
  */
 const http = require('http');
@@ -12,6 +12,8 @@ function singed(value) {
     return crypto.createHash('sha256', key).update(value).digest('base64');
 }
 
+const session = {};
+const cardName = 'connectId';
 const server = http.createServer((req, res) => {
     req.getCookie = function (name, isSinged) {
         const cookies = req.headers['cookie'];
@@ -24,7 +26,7 @@ const server = http.createServer((req, res) => {
         }
     }
     let cookies = [];
-    res.setCookie = function (name, value, options) {
+    res.setCookie = function (name, value, options = {}) {
         let optArgs = [];
         if (options.maxAge) {
             optArgs.push(`max-age=${options.maxAge}`);
@@ -38,12 +40,17 @@ const server = http.createServer((req, res) => {
         cookies.push(`${name}=${value}; ${optArgs.join('; ')}`)
         res.setHeader('Set-Cookie', cookies);
     }
-    if (req.url === '/read') {
-        const cookie = req.getCookie('name', true);
-        res.end(cookie);
-    } else if (req.url === '/write') {
-        res.setCookie('name', 'lxd', {maxAge: 60, httpOnly: true, singed: true})
-        res.end('write ok')
+    if (req.url === '/cut') {
+        const cookie = req.getCookie(cardName);
+        if (cookie && session[cookie]) {
+            session[cookie].money -= 20;
+            res.end(session[cookie].money + '');
+        } else {
+            const connectId = Date.now() + ''; // 可以使用uuid模块来更安全地生成
+            res.setCookie(cardName, connectId, {httpOnly: true});
+            session[connectId] = {money: 100};
+            res.end(session[connectId].money + '');
+        }
     } else {
         res.end('not found');
     }
