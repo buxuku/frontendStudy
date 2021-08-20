@@ -15,6 +15,18 @@ Router.prototype.route = function(path) {
   return route;
 };
 
+Router.prototype.use = function(path, ...handlers){
+  if(!handlers[0]){// 全局中间件可以省略path
+    handlers.push(path);
+    path = '/';
+  }
+  handlers.forEach(handler => {
+    const layer = new Layer(path, handler);
+    layer.route = undefined;//不赋值也是undefined, 这里为了显式表明中间件没有route;
+    this.stack.push(layer);
+  })
+}
+
 methods.forEach(method => {
   Router.prototype[method] = function(path, handler) {
     let route = this.route(path);

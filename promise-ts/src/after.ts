@@ -34,3 +34,5 @@ fs.readFile(path.resolve(__dirname, 'name.txt'), 'utf8', function(err, data){
 fs.readFile(path.resolve(__dirname, 'age.txt'), 'utf8', function(err, data){
     fn('age', data);
 })
+
+export {}
